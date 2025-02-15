@@ -4,9 +4,9 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'ls'
-                sh 'npm install'
+                sh 'npm ci'
                 sh 'echo N | ng analytics off'
-                sh 'ng build'
+                sh 'ng build --configuration=production'
                 sh 'ls'
                 sh 'cd dist && ls'
                 sh 'cd dist/angular-tour-of-heroes/browser && ls'
