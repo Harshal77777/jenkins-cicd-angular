@@ -1,21 +1,20 @@
-# Use official Node.js image
-FROM node:18 AS builder
+# Use official Node.js image for building
+FROM node:18 AS build
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy only package files first (to leverage Docker cache)
+COPY package.json package-lock.json ./
 
-# Install dependencies and cache them
-RUN npm ci --only=production
+# Install dependencies (cached if package.json is unchanged)
+RUN npm ci --legacy-peer-deps
 
-# Copy source files
+# Copy the rest of the app and build
 COPY . .
-
-# Build Angular app
 RUN npm run build --prod
 
-# Use Nginx for serving static files
-FROM nginx:alpine
-COPY --from=builder /app/dist/angular-app /usr/share/nginx/html
+# Use Nginx to serve the Angular app
+FROM nginx:latest
+COPY --from=build /app/dist/your-angular-app /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
